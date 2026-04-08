@@ -24,7 +24,7 @@ const LoginPage: React.FC = () => {
 };
 
 const styles = {
-    container: { display: 'flex', justifyContent: 'center', marginTop: '100px', fontFamily: 'sans-serif' },
+    container: { display: 'flex', justifyContent: 'center', marginTop: '100px', fontFamily: "'Pretendard', sans-serif" },
     box: { padding: '40px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', textAlign: 'center' as const, background: 'white' },
     btn: { width: '100%', padding: '14px', margin: '8px 0', fontSize: '16px', fontWeight: 'bold', border: 'none', borderRadius: '8px', cursor: 'pointer' },
     kakao: { background: '#FEE500', color: '#000' },

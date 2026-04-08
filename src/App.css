@@ -1,3 +1,166 @@
+/* ===== Global ===== */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #f5f6f8;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  word-break: keep-all;
+}
+
+/* ===== BookListPage ===== */
+.bl-container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+/* 헤더 */
+.bl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid #222;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.bl-title { font-size: 20px; font-weight: 700; margin: 0; color: #111; }
+.bl-header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.bl-count { font-size: 12px; color: #999; }
+
+/* 버튼 */
+.bl-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+  border: none;
+  min-height: 36px;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.bl-btn-primary { background: #222; color: #fff; }
+.bl-btn-ghost   { background: transparent; color: #555; border: 1px solid #ddd !important; }
+.bl-btn-danger  { background: transparent; color: #c62828; border: 1px solid #e57373 !important; }
+
+/* 테이블 (태블릿·데스크톱) */
+.bl-table-wrap {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.bl-table { width: 100%; border-collapse: collapse; }
+.bl-table thead tr { background: #f8f9fa; }
+.bl-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid #e9ecef;
+}
+.bl-table td { padding: 11px 14px; font-size: 14px; vertical-align: middle; border-bottom: 1px solid #f1f3f5; }
+.bl-table tbody tr { cursor: pointer; background: #fff; transition: background 0.12s; }
+.bl-table tbody tr:last-child td { border-bottom: none; }
+.bl-table tbody tr:hover  { background: #f8f9fa; }
+.bl-table tbody tr:active { background: #f0f1f3; }
+
+.bl-id        { font-size: 12px; color: #bbb; font-weight: 500; white-space: nowrap; }
+.bl-book-title { font-weight: 500; color: #111; }
+.bl-book-sub   { color: #aaa; font-size: 12px; margin-left: 4px; }
+.bl-author     { color: #555; }
+
+/* 카드 목록 (모바일 전용 — 기본 숨김) */
+.bl-list {
+  display: none;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.bl-list-item {
+  display: flex;
+  align-items: center;
+  padding: 13px 16px;
+  border-bottom: 1px solid #f1f3f5;
+  cursor: pointer;
+  gap: 12px;
+  min-height: 60px;
+  -webkit-tap-highlight-color: rgba(0,0,0,0.06);
+  transition: background 0.1s;
+}
+.bl-list-item:last-child { border-bottom: none; }
+.bl-list-item:active { background: #f0f1f3; }
+
+.bl-list-id     { font-size: 11px; color: #ccc; font-weight: 500; flex-shrink: 0; width: 32px; }
+.bl-list-info   { flex: 1; min-width: 0; }
+.bl-list-title  { font-size: 14px; font-weight: 500; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bl-list-author { font-size: 12px; color: #999; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bl-list-badge  { flex-shrink: 0; }
+
+/* 뱃지 */
+.bl-badge-ok { display: inline-block; padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 600; background: #e8f5e9; color: #2e7d32; white-space: nowrap; }
+.bl-badge-no { display: inline-block; padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 600; background: #fdecea; color: #c62828; white-space: nowrap; }
+
+/* 페이지네이션 */
+.bl-pagination { display: flex; justify-content: center; align-items: center; gap: 4px; margin-top: 20px; flex-wrap: wrap; }
+.bl-page-btn {
+  min-width: 40px; height: 40px;
+  padding: 0 12px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #444;
+  font-family: inherit;
+  transition: background 0.1s;
+}
+.bl-page-btn:disabled { opacity: 0.35; cursor: default; }
+.bl-page-btn:not(:disabled):hover { background: #f5f6f8; }
+.bl-page-btn-active { background: #222 !important; color: #fff !important; border-color: #222 !important; font-weight: 700; }
+
+.bl-empty   { text-align: center; padding: 80px 20px; color: #aaa; font-size: 15px; }
+.bl-loading { text-align: center; padding: 100px 20px; color: #aaa; font-size: 14px; }
+
+/* ── 반응형 ── */
+
+/* 모바일 (~ 640px) */
+@media (max-width: 640px) {
+  .bl-container { padding: 14px 12px 60px; }
+  .bl-title { font-size: 17px; }
+  .bl-count { display: none; }
+  .bl-btn { min-height: 40px; padding: 0 12px; }
+
+  /* 테이블 → 카드 전환 */
+  .bl-table-wrap { display: none; }
+  .bl-list { display: flex; }
+
+  /* 페이지 버튼 터치 타깃 확대 (iOS HIG 44pt) */
+  .bl-page-btn { min-width: 44px; height: 44px; font-size: 15px; }
+  .bl-pagination { gap: 6px; }
+}
+
+/* 소형 태블릿 (641px ~ 768px): 부제 숨김 */
+@media (min-width: 641px) and (max-width: 768px) {
+  .bl-book-sub { display: none; }
+  .bl-container { padding: 20px 16px 48px; }
+}
+
+/* 중형 태블릿 (769px ~ 900px) */
+@media (min-width: 769px) and (max-width: 900px) {
+  .bl-container { padding: 24px 20px 48px; }
+}
+
+/* ===== (기존 Vite 템플릿 스타일 유지) ===== */
 .counter {
   font-size: 16px;
   padding: 5px 10px;

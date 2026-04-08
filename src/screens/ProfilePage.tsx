@@ -125,7 +125,7 @@ const ProfilePage: React.FC = () => {
 
 // CSS 스타일 (다른 페이지들과 통일감을 맞춤)
 const styles = {
-    container: { maxWidth: '500px', margin: '50px auto', fontFamily: 'sans-serif' },
+    container: { maxWidth: '500px', margin: '50px auto', fontFamily: "'Pretendard', sans-serif", padding: '0 16px' },
     card: { background: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' },
     title: { fontSize: '22px', margin: '0 0 24px 0', color: '#333', textAlign: 'center' as const },
     inputGroup: { marginBottom: '20px' },

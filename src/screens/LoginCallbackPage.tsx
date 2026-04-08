@@ -55,7 +55,7 @@ const LoginCallbackPage: React.FC = () => {
 
     // 사용자는 아주 잠깐 이 화면을 보게 됩니다.
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '100px', fontSize: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '100px', fontSize: '20px', fontFamily: "'Pretendard', sans-serif" }}>
             🔄 {provider === 'kakao' ? '카카오' : 'GitHub'} 로그인 처리 중...
         </div>
     );

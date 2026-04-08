@@ -155,7 +155,7 @@ const BookDetailPage: React.FC = () => {
 
 // CSS 스타일 객체
 const styles = {
-    container: { maxWidth: '600px', margin: '50px auto', fontFamily: 'sans-serif' },
+    container: { maxWidth: '600px', margin: '50px auto', fontFamily: "'Pretendard', sans-serif", padding: '0 16px' },
     card: { background: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' },
     title: { fontSize: '24px', margin: '0 0 8px 0', color: '#222' },
     subtitle: { fontSize: '16px', margin: '0 0 20px 0', color: '#666', fontWeight: 'normal' },
