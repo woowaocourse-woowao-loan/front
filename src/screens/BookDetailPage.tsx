@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, {useEffect, useRef, useState} from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 // 💡 백엔드 DTO와 일치하는 인터페이스
 interface BookInfo {
@@ -18,6 +18,9 @@ interface BorrowInfo {
 const BookDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const isRedirecting = useRef(false);
 
     const [book, setBook] = useState<BookInfo | null>(null);
     const [borrowInfo, setBorrowInfo] = useState<BorrowInfo | null>(null);
@@ -28,6 +31,17 @@ const BookDetailPage: React.FC = () => {
 
     // 💡 초기 데이터 로딩 (책 정보 + 대출 상태 + 내 정보)
     useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            if (!isRedirecting.current) {
+                isRedirecting.current = true;
+                alert("로그인이 필요한 서비스입니다. 로그인 페이지로 이동합니다.")
+                sessionStorage.setItem('redirectAfterLogin', location.pathname);
+                navigate('/login');
+            }
+            return;
+        }
+
         const fetchAllData = async () => {
             try {
                 const token = localStorage.getItem('token');
@@ -62,7 +76,7 @@ const BookDetailPage: React.FC = () => {
         };
 
         fetchAllData();
-    }, [id]);
+    }, [id, navigate, location.pathname]);
 
     // 💡 대출하기 (POST /borrows/{bookId})
     const handleBorrow = async () => {

@@ -29,10 +29,20 @@ const LoginCallbackPage: React.FC = () => {
                         // 2. 신규 유저라면 환영 알림
                         if (data.isNewUser) {
                             alert("환영합니다! 신규 회원가입이 완료되었습니다.");
+                            sessionStorage.removeItem('redirectAfterLogin')
+                            navigate('/profile', { replace: true });
+                            return;
+                        }
+                        const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+                        if (redirectUrl) {
+                            // 목적지가 있다면
+                            sessionStorage.removeItem('redirectAfterLogin')
+                            navigate(redirectUrl, { replace: true })
+                        } else {
+                            // 목적지가 없다면
+                            navigate('/', { replace: true });
                         }
 
-                        // 3. 메인 페이지(도서 목록)로 이동!
-                        navigate('/', { replace: true });
                     }
                 })
                 .catch(err => {
