@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
-    const BASE_URL = 'http://localhost:8080';
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
 
     const [currentName, setCurrentName] = useState<string>('');
     const [newName, setNewName] = useState<string>('');
