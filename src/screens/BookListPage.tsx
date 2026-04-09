@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
+import logo from "../assets/logo.png";
 
 interface Book {
     id: number;
@@ -57,7 +58,7 @@ const BookListPage: React.FC = () => {
         <div className="bl-container">
             {/* 헤더 */}
             <div className="bl-header">
-                <h1 className="bl-title">우아한 도서관</h1>
+                <img src={logo} alt="우아론 로고" className="bl-logo" />
                 <div className="bl-header-right">
                     <span className="bl-count">총 {books.length}권</span>
                     {isLoggedIn ? (
