@@ -13,6 +13,25 @@ interface BorrowInfo {
     title: string;
     subtitle: string;
     author: string;
+    borrowedAt: string; // ISO 8601 (e.g. "2026-04-07T10:30:00")
+}
+
+const LOAN_DAYS = 3;
+
+function getDDayInfo(borrowedAt: string): { label: string; isOverdue: boolean; isSoon: boolean } {
+    const due = new Date(borrowedAt);
+    due.setDate(due.getDate() + LOAN_DAYS);
+    due.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const diff = Math.round((due.getTime() - today.getTime()) / 86400000);
+    const dueStr = `${due.getMonth() + 1}월 ${due.getDate()}일`;
+
+    if (diff > 0)  return { label: `반납 기한: ${dueStr} (D-${diff})`, isOverdue: false, isSoon: diff <= 1 };
+    if (diff === 0) return { label: `반납 기한: 오늘 (D-Day)`,           isOverdue: false, isSoon: true };
+    return             { label: `반납 기한 초과 (D+${Math.abs(diff)})`,  isOverdue: true,  isSoon: false };
 }
 
 const BookDetailPage: React.FC = () => {
@@ -122,6 +141,7 @@ const BookDetailPage: React.FC = () => {
     // 💡 버튼 상태 계산 로직
     const isAvailable = borrowInfo === null;
     const isBorrowedByMe = borrowInfo && borrowInfo.username === myUsername;
+    const dday = borrowInfo ? getDDayInfo(borrowInfo.borrowedAt) : null;
 
     return (
         <div style={styles.container}>
@@ -130,10 +150,12 @@ const BookDetailPage: React.FC = () => {
                 <h3 style={styles.subtitle}>{book.subtitle}</h3>
                 <p style={styles.author}><strong>저자:</strong> {book.author}</p>
 
-                <div style={styles.statusBox(isAvailable)}>
-                    {isAvailable ? '🟢 현재 대출 가능합니다.' :
-                        isBorrowedByMe ? '🟡 내가 대출 중인 도서입니다.' :
-                            `🔴 [${borrowInfo.username}]님이 대출 중입니다.`}
+                <div style={styles.statusBox(isAvailable, dday?.isOverdue, dday?.isSoon)}>
+                    {isAvailable
+                        ? '대출 가능합니다.'
+                        : isBorrowedByMe
+                            ? `내가 대출 중 · ${dday!.label}`
+                            : `[${borrowInfo!.username}]님이 대출 중 · ${dday!.label}`}
                 </div>
 
                 <div style={styles.buttonGroup}>
@@ -160,10 +182,10 @@ const styles = {
     title: { fontSize: '24px', margin: '0 0 8px 0', color: '#222' },
     subtitle: { fontSize: '16px', margin: '0 0 20px 0', color: '#666', fontWeight: 'normal' },
     author: { fontSize: '16px', margin: '0 0 24px 0' },
-    statusBox: (isAvailable: boolean) => ({
+    statusBox: (isAvailable?: boolean, isOverdue?: boolean, isSoon?: boolean) => ({
         padding: '16px', borderRadius: '8px', marginBottom: '24px', fontWeight: 'bold' as const, textAlign: 'center' as const,
-        background: isAvailable ? '#e6f4ea' : '#f8f9fa',
-        color: isAvailable ? '#137333' : '#444'
+        background: isAvailable ? '#e6f4ea' : isOverdue ? '#fdecea' : isSoon ? '#fff8e1' : '#f8f9fa',
+        color:      isAvailable ? '#137333' : isOverdue ? '#c62828' : isSoon ? '#e65100' : '#444',
     }),
     buttonGroup: { display: 'flex', gap: '12px' },
     primaryBtn: { flex: 1, padding: '14px', background: '#007bff', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' },
