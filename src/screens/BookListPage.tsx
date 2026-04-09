@@ -15,7 +15,7 @@ const PAGE_SIZE = 20;
 
 const BookListPage: React.FC = () => {
     const navigate = useNavigate();
-    const BASE_URL = 'http://localhost:8080';
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
 
     const [books, setBooks] = useState<Book[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
