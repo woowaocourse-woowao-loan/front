@@ -9,11 +9,21 @@ interface BookInfo {
 }
 
 interface BorrowInfo {
+    memberId: number;
     username: string;
     title: string;
     subtitle: string;
     author: string;
     borrowedAt: string; // ISO 8601 (e.g. "2026-04-07T10:30:00")
+}
+
+function getMemberIdFromToken(token: string): number | null {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.memberId ?? null;
+    } catch {
+        return null;
+    }
 }
 
 const LOAN_DAYS = 3;
@@ -43,7 +53,7 @@ const BookDetailPage: React.FC = () => {
 
     const [book, setBook] = useState<BookInfo | null>(null);
     const [borrowInfo, setBorrowInfo] = useState<BorrowInfo | null>(null);
-    const [myUsername, setMyUsername] = useState<string | null>(null);
+    const [myMemberId, setMyMemberId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
@@ -77,15 +87,9 @@ const BookDetailPage: React.FC = () => {
                     setBorrowInfo(null); // 204 No Content면 대출 가능 상태
                 }
 
-                // 3. 로그인한 내 이름 가져오기 (GET /oauth/me)
+                // 3. JWT에서 memberId 추출
                 if (token) {
-                    const meRes = await fetch(`${BASE_URL}/oauth/me`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (meRes.ok) {
-                        const name = await meRes.text();
-                        setMyUsername(name); // 내 이름 저장 (반납 권한 확인용)
-                    }
+                    setMyMemberId(getMemberIdFromToken(token));
                 }
             } catch (error) {
                 console.error("데이터 로딩 실패:", error);
@@ -140,7 +144,7 @@ const BookDetailPage: React.FC = () => {
 
     // 💡 버튼 상태 계산 로직
     const isAvailable = borrowInfo === null;
-    const isBorrowedByMe = borrowInfo && borrowInfo.username === myUsername;
+    const isBorrowedByMe = borrowInfo && borrowInfo.memberId === myMemberId;
     const dday = borrowInfo ? getDDayInfo(borrowInfo.borrowedAt) : null;
 
     return (
