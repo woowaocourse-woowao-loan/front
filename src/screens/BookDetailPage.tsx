@@ -161,7 +161,10 @@ const BookDetailPage: React.FC = () => {
                 <div style={styles.buttonGroup}>
                     {/* 대출/반납 버튼 렌더링 */}
                     {isAvailable ? (
-                        <button onClick={handleBorrow} style={styles.primaryBtn}>대출하기</button>
+                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '6px' }}>
+                            <button onClick={handleBorrow} style={styles.primaryBtn}>대출하기</button>
+                            <p style={styles.loanHint}>대출 기한은 3일입니다.</p>
+                        </div>
                     ) : isBorrowedByMe ? (
                         <button onClick={handleReturn} style={styles.returnBtn}>반납하기</button>
                     ) : (
@@ -192,6 +195,7 @@ const styles = {
     returnBtn: { flex: 1, padding: '14px', background: '#28a745', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' },
     disabledBtn: { flex: 1, padding: '14px', background: '#e9ecef', color: '#adb5bd', border: 'none', borderRadius: '8px', cursor: 'not-allowed', fontWeight: 'bold' },
     secondaryBtn: { padding: '14px 20px', background: '#f1f3f5', color: '#333', border: 'none', borderRadius: '8px', cursor: 'pointer' },
+    loanHint: { margin: 0, fontSize: '13px', color: '#888', textAlign: 'center' as const },
 };
 
 export default BookDetailPage;
