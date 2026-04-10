@@ -17,8 +17,10 @@ body {
 /* ===== BookListPage ===== */
 .bl-container {
   max-width: 860px;
+  width: 100%;
   margin: 0 auto;
   padding: 24px 16px 48px;
+  overflow-x: hidden;
 }
 
 /* 헤더 */
@@ -86,6 +88,7 @@ body {
 .bl-list {
   display: none;
   flex-direction: column;
+  width: 100%;
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 1px 6px rgba(0,0,0,0.08);
@@ -155,12 +158,10 @@ body {
   .bl-count { display: none; }
   .bl-btn { min-height: 40px; padding: 0 12px; font-size: 13px; }
 
-  /* 로고 축소 */
-  .bl-logo { height: 48px; margin-right: 6px; }
-
-  /* 헤더 버튼 영역이 잘리지 않도록 */
-  .bl-header { flex-wrap: nowrap; overflow: visible; }
-  .bl-header-right { flex-shrink: 0; min-width: 0; }
+  /* 로고 축소 + 버튼 밀림 방지 */
+  .bl-logo { height: 48px; max-width: 140px; object-fit: contain; flex-shrink: 1; margin-right: 6px; }
+  .bl-header { flex-wrap: nowrap; }
+  .bl-header-right { flex-shrink: 0; }
 
   /* 테이블 → 카드 전환 */
   .bl-table-wrap { display: none; }
