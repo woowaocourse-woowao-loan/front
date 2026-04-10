@@ -91,13 +91,13 @@ const ProfilePage: React.FC = () => {
                 <h2 style={styles.title}>👤 마이페이지 / 프로필 설정</h2>
 
                 <div style={styles.inputGroup}>
-                    <label style={styles.label}>현재 닉네임 (또는 임시 발급 닉네임)</label>
+                    <label style={styles.label}>우테코 닉네임</label>
                     <input
                         type="text"
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
                         style={styles.input}
-                        placeholder="사용할 닉네임을 입력하세요"
+                        placeholder="우테코 닉네임을 입력하세요"
                     />
                 </div>
 
@@ -106,7 +106,7 @@ const ProfilePage: React.FC = () => {
                         저장하기
                     </button>
                     <button onClick={() => navigate('/')} style={styles.cancelBtn}>
-                        취소
+                        목록으로
                     </button>
                 </div>
 
