@@ -138,6 +138,7 @@ const [book, setBook] = useState<BookInfo | null>(null);
     return (
         <div style={styles.container}>
             <div style={styles.card}>
+                <p style={styles.bookId}>#{id}</p>
                 <h1 style={styles.title}>{book.title}</h1>
                 <h3 style={styles.subtitle}>{book.subtitle}</h3>
                 <p style={styles.author}><strong>저자:</strong> {book.author}</p>
@@ -188,6 +189,7 @@ const styles = {
     disabledBtn: { flex: 1, padding: '13px', background: '#e9ecef', color: '#adb5bd', border: 'none', borderRadius: '8px', cursor: 'not-allowed', fontWeight: 'bold', fontSize: '15px', minWidth: 0 },
     secondaryBtn: { padding: '13px 16px', background: '#f1f3f5', color: '#333', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', whiteSpace: 'nowrap' as const, flexShrink: 0 },
     loanHint: { margin: 0, fontSize: '13px', color: '#888', textAlign: 'center' as const },
+    bookId: { margin: '0 0 6px 0', fontSize: '12px', color: '#bbb', fontWeight: 500 },
 };
 
 export default BookDetailPage;
