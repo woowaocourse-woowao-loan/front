@@ -92,6 +92,7 @@ const [book, setBook] = useState<BookInfo | null>(null);
     const handleBorrow = async () => {
         const token = localStorage.getItem('token');
         if (!token) {
+            alert("로그인이 필요한 기능입니다.");
             sessionStorage.setItem('redirectAfterLogin', location.pathname);
             navigate('/login');
             return;
