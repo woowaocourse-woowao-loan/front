@@ -188,7 +188,7 @@ const styles = {
     returnBtn: { flex: 1, padding: '13px', background: '#28a745', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px', minWidth: 0 },
     disabledBtn: { flex: 1, padding: '13px', background: '#e9ecef', color: '#adb5bd', border: 'none', borderRadius: '8px', cursor: 'not-allowed', fontWeight: 'bold', fontSize: '15px', minWidth: 0 },
     secondaryBtn: { padding: '13px 16px', background: '#f1f3f5', color: '#333', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', whiteSpace: 'nowrap' as const, flexShrink: 0 },
-    loanHint: { margin: 0, fontSize: '13px', color: '#888', textAlign: 'center' as const },
+    loanHint: { margin: 0, fontSize: '13px', color: '#888', textAlign: 'left' as const },
     bookId: { margin: '0 0 6px 0', fontSize: '12px', color: '#bbb', fontWeight: 500 },
 };
 
