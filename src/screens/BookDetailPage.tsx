@@ -183,7 +183,7 @@ const styles = {
         background: isAvailable ? '#e6f4ea' : isOverdue ? '#fdecea' : isSoon ? '#fff8e1' : '#f8f9fa',
         color:      isAvailable ? '#137333' : isOverdue ? '#c62828' : isSoon ? '#e65100' : '#444',
     }),
-    buttonGroup: { display: 'flex', gap: '10px', alignItems: 'stretch' },
+    buttonGroup: { display: 'flex', gap: '10px', alignItems: 'flex-start' },
     primaryBtn: { flex: 1, padding: '13px', background: '#007bff', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px', minWidth: 0 },
     returnBtn: { flex: 1, padding: '13px', background: '#28a745', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px', minWidth: 0 },
     disabledBtn: { flex: 1, padding: '13px', background: '#e9ecef', color: '#adb5bd', border: 'none', borderRadius: '8px', cursor: 'not-allowed', fontWeight: 'bold', fontSize: '15px', minWidth: 0 },
