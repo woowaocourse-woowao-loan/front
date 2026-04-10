@@ -21,31 +21,33 @@ const BookListPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
+    const [totalPages, setTotalPages] = useState<number>(1);
+    const [totalElements, setTotalElements] = useState<number>(0);
 
     useEffect(() => {
         if (localStorage.getItem('token')) setIsLoggedIn(true);
+    }, []);
 
-        fetch(`${BASE_URL}/books`)
+    useEffect(() => {
+        setIsLoading(true);
+        fetch(`${BASE_URL}/books?page=${page - 1}&size=${PAGE_SIZE}&sort=title,asc&sort=author,asc`)
             .then(res => res.ok ? res.json() : Promise.reject())
-            .then(async (data: Book[]) => {
+            .then(async (data: { content: Book[]; totalPages: number; totalElements: number }) => {
                 const statuses = await Promise.all(
-                    data.map(book =>
+                    data.content.map(book =>
                         fetch(`${BASE_URL}/borrows/${book.id}`)
                             .then(res => ({ id: book.id, isBorrowed: res.status === 200 }))
                             .catch(() => ({ id: book.id, isBorrowed: false }))
                     )
                 );
                 const statusMap = Object.fromEntries(statuses.map(s => [s.id, s.isBorrowed]));
-                const merged = data.map(book => ({ ...book, isBorrowed: statusMap[book.id] }));
-                merged.sort((a, b) => {
-                    const titleCmp = a.title.localeCompare(b.title, 'ko');
-                    return titleCmp !== 0 ? titleCmp : a.author.localeCompare(b.author, 'ko');
-                });
-                setBooks(merged);
+                setBooks(data.content.map(book => ({ ...book, isBorrowed: statusMap[book.id] })));
+                setTotalPages(data.totalPages);
+                setTotalElements(data.totalElements);
             })
             .catch(() => console.error('책 목록을 불러오지 못했습니다.'))
             .finally(() => setIsLoading(false));
-    }, []);
+    }, [page]);
 
     const handleLogout = () => {
         if (window.confirm('로그아웃 하시겠습니까?')) {
@@ -54,8 +56,6 @@ const BookListPage: React.FC = () => {
         }
     };
 
-    const totalPages = Math.ceil(books.length / PAGE_SIZE);
-    const pagedBooks = books.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     if (isLoading) return <div className="bl-loading">불러오는 중...</div>;
 
@@ -65,7 +65,7 @@ const BookListPage: React.FC = () => {
             <div className="bl-header">
                 <img src={logo} alt="우아론 로고" className="bl-logo" />
                 <div className="bl-header-right">
-                    <span className="bl-count">총 {books.length}권</span>
+                    <span className="bl-count">총 {totalElements}권</span>
                     {isLoggedIn ? (
                         <>
                             <button onClick={() => navigate('/profile')} className="bl-btn bl-btn-ghost">마이페이지</button>
@@ -93,7 +93,7 @@ const BookListPage: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {pagedBooks.map((book, i) => (
+                                {books.map((book, i) => (
                                     <tr key={book.id} onClick={() => navigate(`/books/${book.id}`)}>
                                         <td className="bl-id">#{(page - 1) * PAGE_SIZE + i + 1}</td>
                                         <td>
@@ -114,7 +114,7 @@ const BookListPage: React.FC = () => {
 
                     {/* 카드 목록 — 모바일 */}
                     <div className="bl-list">
-                        {pagedBooks.map((book, i) => (
+                        {books.map((book, i) => (
                             <div key={book.id} className="bl-list-item" onClick={() => navigate(`/books/${book.id}`)}>
                                 <span className="bl-list-id">#{(page - 1) * PAGE_SIZE + i + 1}</span>
                                 <div className="bl-list-info">
