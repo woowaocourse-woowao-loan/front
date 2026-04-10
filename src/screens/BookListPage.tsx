@@ -86,16 +86,14 @@ const BookListPage: React.FC = () => {
                         <table className="bl-table">
                             <thead>
                                 <tr>
-                                    <th style={{ width: '72px' }}>번호</th>
                                     <th>도서명</th>
                                     <th style={{ width: '150px' }}>저자</th>
                                     <th style={{ width: '86px', textAlign: 'center' }}>상태</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {books.map((book, i) => (
+                                {books.map((book) => (
                                     <tr key={book.id} onClick={() => navigate(`/books/${book.id}`)}>
-                                        <td className="bl-id">#{(page - 1) * PAGE_SIZE + i + 1}</td>
                                         <td>
                                             <span className="bl-book-title">{book.title}</span>
                                             {book.subtitle && <span className="bl-book-sub">— {book.subtitle}</span>}
@@ -114,9 +112,8 @@ const BookListPage: React.FC = () => {
 
                     {/* 카드 목록 — 모바일 */}
                     <div className="bl-list">
-                        {books.map((book, i) => (
+                        {books.map((book) => (
                             <div key={book.id} className="bl-list-item" onClick={() => navigate(`/books/${book.id}`)}>
-                                <span className="bl-list-id">#{(page - 1) * PAGE_SIZE + i + 1}</span>
                                 <div className="bl-list-info">
                                     <div className="bl-list-title">{book.title}</div>
                                     <div className="bl-list-author">{book.author.split(',')[0].trim()}</div>
