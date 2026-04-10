@@ -36,7 +36,12 @@ const BookListPage: React.FC = () => {
                     )
                 );
                 const statusMap = Object.fromEntries(statuses.map(s => [s.id, s.isBorrowed]));
-                setBooks(data.map(book => ({ ...book, isBorrowed: statusMap[book.id] })));
+                const merged = data.map(book => ({ ...book, isBorrowed: statusMap[book.id] }));
+                merged.sort((a, b) => {
+                    const titleCmp = a.title.localeCompare(b.title, 'ko');
+                    return titleCmp !== 0 ? titleCmp : a.author.localeCompare(b.author, 'ko');
+                });
+                setBooks(merged);
             })
             .catch(() => console.error('책 목록을 불러오지 못했습니다.'))
             .finally(() => setIsLoading(false));
@@ -81,16 +86,16 @@ const BookListPage: React.FC = () => {
                         <table className="bl-table">
                             <thead>
                                 <tr>
-                                    <th style={{ width: '72px' }}>ID</th>
+                                    <th style={{ width: '72px' }}>번호</th>
                                     <th>도서명</th>
                                     <th style={{ width: '150px' }}>저자</th>
                                     <th style={{ width: '86px', textAlign: 'center' }}>상태</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {pagedBooks.map(book => (
+                                {pagedBooks.map((book, i) => (
                                     <tr key={book.id} onClick={() => navigate(`/books/${book.id}`)}>
-                                        <td className="bl-id">#{book.id}</td>
+                                        <td className="bl-id">#{(page - 1) * PAGE_SIZE + i + 1}</td>
                                         <td>
                                             <span className="bl-book-title">{book.title}</span>
                                             {book.subtitle && <span className="bl-book-sub">— {book.subtitle}</span>}
@@ -109,9 +114,9 @@ const BookListPage: React.FC = () => {
 
                     {/* 카드 목록 — 모바일 */}
                     <div className="bl-list">
-                        {pagedBooks.map(book => (
+                        {pagedBooks.map((book, i) => (
                             <div key={book.id} className="bl-list-item" onClick={() => navigate(`/books/${book.id}`)}>
-                                <span className="bl-list-id">#{book.id}</span>
+                                <span className="bl-list-id">#{(page - 1) * PAGE_SIZE + i + 1}</span>
                                 <div className="bl-list-info">
                                     <div className="bl-list-title">{book.title}</div>
                                     <div className="bl-list-author">{book.author.split(',')[0].trim()}</div>
