@@ -172,21 +172,21 @@ const [book, setBook] = useState<BookInfo | null>(null);
 
 // CSS 스타일 객체
 const styles = {
-    container: { maxWidth: '600px', margin: '50px auto', fontFamily: "'Pretendard', sans-serif", padding: '0 16px' },
-    card: { background: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' },
-    title: { fontSize: '24px', margin: '0 0 8px 0', color: '#222' },
-    subtitle: { fontSize: '16px', margin: '0 0 20px 0', color: '#666', fontWeight: 'normal' },
-    author: { fontSize: '16px', margin: '0 0 24px 0' },
+    container: { maxWidth: '600px', margin: '24px auto', fontFamily: "'Pretendard', sans-serif", padding: '0 16px', boxSizing: 'border-box' as const, width: '100%' },
+    card: { background: 'white', padding: '24px 20px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' },
+    title: { fontSize: '22px', margin: '0 0 8px 0', color: '#222', wordBreak: 'break-word' as const },
+    subtitle: { fontSize: '15px', margin: '0 0 16px 0', color: '#666', fontWeight: 'normal', wordBreak: 'break-word' as const },
+    author: { fontSize: '15px', margin: '0 0 20px 0' },
     statusBox: (isAvailable?: boolean, isOverdue?: boolean, isSoon?: boolean) => ({
         padding: '16px', borderRadius: '8px', marginBottom: '24px', fontWeight: 'bold' as const, textAlign: 'center' as const,
         background: isAvailable ? '#e6f4ea' : isOverdue ? '#fdecea' : isSoon ? '#fff8e1' : '#f8f9fa',
         color:      isAvailable ? '#137333' : isOverdue ? '#c62828' : isSoon ? '#e65100' : '#444',
     }),
-    buttonGroup: { display: 'flex', gap: '12px' },
-    primaryBtn: { flex: 1, padding: '14px', background: '#007bff', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' },
-    returnBtn: { flex: 1, padding: '14px', background: '#28a745', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' },
-    disabledBtn: { flex: 1, padding: '14px', background: '#e9ecef', color: '#adb5bd', border: 'none', borderRadius: '8px', cursor: 'not-allowed', fontWeight: 'bold' },
-    secondaryBtn: { padding: '14px 20px', background: '#f1f3f5', color: '#333', border: 'none', borderRadius: '8px', cursor: 'pointer' },
+    buttonGroup: { display: 'flex', gap: '10px', alignItems: 'stretch' },
+    primaryBtn: { flex: 1, padding: '13px', background: '#007bff', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px', minWidth: 0 },
+    returnBtn: { flex: 1, padding: '13px', background: '#28a745', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px', minWidth: 0 },
+    disabledBtn: { flex: 1, padding: '13px', background: '#e9ecef', color: '#adb5bd', border: 'none', borderRadius: '8px', cursor: 'not-allowed', fontWeight: 'bold', fontSize: '15px', minWidth: 0 },
+    secondaryBtn: { padding: '13px 16px', background: '#f1f3f5', color: '#333', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', whiteSpace: 'nowrap' as const, flexShrink: 0 },
     loanHint: { margin: 0, fontSize: '13px', color: '#888', textAlign: 'center' as const },
 };
 

@@ -1,6 +1,11 @@
 /* ===== Global ===== */
 * { box-sizing: border-box; }
 
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
   margin: 0;
   background: #f5f6f8;
