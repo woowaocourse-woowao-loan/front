@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { clearBookListCache } from './BookListPage';
 
 // 💡 백엔드 DTO와 일치하는 인터페이스
 interface BookInfo {
@@ -105,6 +106,7 @@ const [book, setBook] = useState<BookInfo | null>(null);
 
         if (res.status === 201) {
             alert("성공적으로 대출되었습니다!");
+            clearBookListCache();
             window.location.reload();
         } else {
             alert("대출에 실패했습니다.");
@@ -121,6 +123,7 @@ const [book, setBook] = useState<BookInfo | null>(null);
 
         if (res.ok) {
             alert("성공적으로 반납되었습니다!");
+            clearBookListCache();
             window.location.reload();
         } else {
             alert("반납 처리에 실패했습니다.");

@@ -11,7 +11,48 @@ interface Book {
     isBorrowed?: boolean;
 }
 
+interface CachedPage {
+    books: Book[];
+    totalPages: number;
+    totalElements: number;
+    timestamp: number;
+}
+
 const PAGE_SIZE = 20;
+const CACHE_TTL_MS = 60_000;
+const CACHE_PREFIX = 'bookList:page:';
+
+const readCache = (page: number): CachedPage | null => {
+    try {
+        const raw = sessionStorage.getItem(`${CACHE_PREFIX}${page}`);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw) as CachedPage;
+        if (Date.now() - parsed.timestamp > CACHE_TTL_MS) return null;
+        return parsed;
+    } catch {
+        return null;
+    }
+};
+
+const writeCache = (page: number, data: Omit<CachedPage, 'timestamp'>) => {
+    try {
+        sessionStorage.setItem(
+            `${CACHE_PREFIX}${page}`,
+            JSON.stringify({ ...data, timestamp: Date.now() })
+        );
+    } catch {
+        // 용량 초과 등은 무시
+    }
+};
+
+export const clearBookListCache = () => {
+    const keys: string[] = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key?.startsWith(CACHE_PREFIX)) keys.push(key);
+    }
+    keys.forEach(k => sessionStorage.removeItem(k));
+};
 
 const BookListPage: React.FC = () => {
     const navigate = useNavigate();
@@ -30,6 +71,16 @@ const BookListPage: React.FC = () => {
     }, []);
 
     useEffect(() => {
+        // 캐시 히트 시 API 호출 없이 즉시 렌더
+        const cached = readCache(page);
+        if (cached) {
+            setBooks(cached.books);
+            setTotalPages(cached.totalPages);
+            setTotalElements(cached.totalElements);
+            setIsLoading(false);
+            return;
+        }
+
         const controller = new AbortController();
         const signal = controller.signal;
 
@@ -58,11 +109,17 @@ const BookListPage: React.FC = () => {
                 );
 
                 const statusMap = Object.fromEntries(statuses.map(s => [s.id, s.isBorrowed]));
+                const mergedBooks = data.content.map(book => ({ ...book, isBorrowed: statusMap[book.id] }));
 
-                // 데이터 업데이트
-                setBooks(data.content.map(book => ({ ...book, isBorrowed: statusMap[book.id] })));
+                // 데이터 업데이트 + 캐시 저장
+                setBooks(mergedBooks);
                 setTotalPages(data.totalPages);
                 setTotalElements(data.totalElements);
+                writeCache(page, {
+                    books: mergedBooks,
+                    totalPages: data.totalPages,
+                    totalElements: data.totalElements,
+                });
             } catch (err: unknown) {
                 if (err instanceof Error) {
                     if (err.name === 'AbortError') {
