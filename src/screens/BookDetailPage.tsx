@@ -164,7 +164,7 @@ const [book, setBook] = useState<BookInfo | null>(null);
                         <button disabled style={styles.disabledBtn}>대출 불가</button>
                     )}
 
-                    <button onClick={() => navigate('/')} style={styles.secondaryBtn}>목록으로</button>
+                    <button onClick={() => navigate('/', { state: { page: (location.state as { fromPage?: number } | null)?.fromPage ?? 1 } })} style={styles.secondaryBtn}>목록으로</button>
                 </div>
             </div>
         </div>

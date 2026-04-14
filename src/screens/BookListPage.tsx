@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../App.css';
 import logo from "../assets/logo.png";
 
@@ -15,12 +15,13 @@ const PAGE_SIZE = 20;
 
 const BookListPage: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const BASE_URL = useMemo(() => import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080', []);
 
     const [books, setBooks] = useState<Book[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-    const [page, setPage] = useState<number>(1);
+    const [page, setPage] = useState<number>((location.state as { page?: number } | null)?.page ?? 1);
     const [totalPages, setTotalPages] = useState<number>(1);
     const [totalElements, setTotalElements] = useState<number>(0);
 
@@ -131,7 +132,7 @@ const BookListPage: React.FC = () => {
                             </thead>
                             <tbody>
                                 {books.map((book) => (
-                                    <tr key={book.id} onClick={() => navigate(`/books/${book.id}`)}>
+                                    <tr key={book.id} onClick={() => navigate(`/books/${book.id}`, { state: { fromPage: page } })}>
                                         <td>
                                             <span className="bl-book-title">{book.title}</span>
                                             {book.subtitle && <span className="bl-book-sub">— {book.subtitle}</span>}
@@ -150,7 +151,7 @@ const BookListPage: React.FC = () => {
 
                     <div className="bl-list">
                         {books.map((book) => (
-                            <div key={book.id} className="bl-list-item" onClick={() => navigate(`/books/${book.id}`)}>
+                            <div key={book.id} className="bl-list-item" onClick={() => navigate(`/books/${book.id}`, { state: { fromPage: page } })}>
                                 <div className="bl-list-info">
                                     <div className="bl-list-title">{book.title}</div>
                                     <div className="bl-list-author">{book.author.split(',')[0].trim()}</div>
