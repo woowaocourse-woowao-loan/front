@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { clearBookListCache } from './BookListPage';
 
 // 💡 백엔드 DTO와 일치하는 인터페이스
 interface BookInfo {
@@ -104,8 +105,13 @@ const [book, setBook] = useState<BookInfo | null>(null);
         });
 
         if (res.status === 201) {
+            // 대출 성공 → 최신 BorrowInfo 재조회 (POST 응답 바디가 없음)
+            const updated = await fetch(`${BASE_URL}/borrows/${id}`);
+            if (updated.status === 200) {
+                setBorrowInfo(await updated.json());
+            }
+            clearBookListCache();
             alert("성공적으로 대출되었습니다!");
-            window.location.reload();
         } else {
             alert("대출에 실패했습니다.");
         }
@@ -120,8 +126,10 @@ const [book, setBook] = useState<BookInfo | null>(null);
         });
 
         if (res.ok) {
+            // 반납 성공 → 추가 API 호출 없이 즉시 "대출 가능" 상태로 전환
+            setBorrowInfo(null);
+            clearBookListCache();
             alert("성공적으로 반납되었습니다!");
-            window.location.reload();
         } else {
             alert("반납 처리에 실패했습니다.");
         }
@@ -164,7 +172,7 @@ const [book, setBook] = useState<BookInfo | null>(null);
                         <button disabled style={styles.disabledBtn}>대출 불가</button>
                     )}
 
-                    <button onClick={() => navigate('/')} style={styles.secondaryBtn}>목록으로</button>
+                    <button onClick={() => navigate('/', { state: { page: (location.state as { fromPage?: number } | null)?.fromPage ?? 1 } })} style={styles.secondaryBtn}>목록으로</button>
                 </div>
             </div>
         </div>
