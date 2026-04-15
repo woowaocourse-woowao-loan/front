@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
-import logo from "../assets/logo.png";
+import logo from "../assets/logo.svg";
 
 interface Book {
     id: number;
