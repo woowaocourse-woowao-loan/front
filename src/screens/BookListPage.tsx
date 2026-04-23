@@ -65,10 +65,21 @@ const BookListPage: React.FC = () => {
     const [page, setPage] = useState<number>((location.state as { page?: number } | null)?.page ?? 1);
     const [totalPages, setTotalPages] = useState<number>(1);
     const [totalElements, setTotalElements] = useState<number>(0);
+    const [overdueCount, setOverdueCount] = useState<number>(0);
 
     useEffect(() => {
-        if (localStorage.getItem('token')) setIsLoggedIn(true);
-    }, []);
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        setIsLoggedIn(true);
+
+        fetch(`${BASE_URL}/borrows/me`, { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.ok ? res.json() : [])
+            .then((borrows: { dueAt: string }[]) => {
+                const now = Date.now();
+                setOverdueCount(borrows.filter(b => new Date(b.dueAt).getTime() < now).length);
+            })
+            .catch(() => {});
+    }, [BASE_URL]);
 
     useEffect(() => {
         // 캐시 히트 시 API 호출 없이 즉시 렌더
@@ -172,6 +183,13 @@ const BookListPage: React.FC = () => {
                     )}
                 </div>
             </div>
+
+            {overdueCount > 0 && (
+                <div className="bl-overdue-banner">
+                    ⚠️ 반납 기한이 지난 책이 <strong>{overdueCount}권</strong> 있습니다.{' '}
+                    <span className="bl-overdue-link" onClick={() => navigate('/profile')}>마이페이지에서 확인하기</span>
+                </div>
+            )}
 
             {books.length === 0 ? (
                 <div className="bl-empty">등록된 도서가 없습니다.</div>

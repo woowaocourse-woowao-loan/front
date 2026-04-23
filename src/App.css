@@ -108,6 +108,22 @@ body {
 .bl-list-item:last-child { border-bottom: none; }
 .bl-list-item:active { background: #f0f1f3; }
 
+.bl-list-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.bl-list-header-info  { flex: 1; }
+.bl-list-header-badge { flex-shrink: 0; width: 50px; text-align: center; }
+
 .bl-list-id     { font-size: 11px; color: #ccc; font-weight: 500; flex-shrink: 0; width: 32px; }
 .bl-list-info   { flex: 1; min-width: 0; }
 .bl-list-title  { font-size: 14px; font-weight: 500; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -138,6 +154,13 @@ body {
 
 .bl-empty   { text-align: center; padding: 80px 20px; color: #aaa; font-size: 15px; }
 .bl-loading { text-align: center; padding: 100px 20px; color: #aaa; font-size: 14px; }
+
+.bl-overdue-banner {
+  background: #fff3cd; color: #856404;
+  padding: 12px 16px; font-size: 14px;
+  border-bottom: 1px solid #ffc107;
+}
+.bl-overdue-link { text-decoration: underline; cursor: pointer; font-weight: 600; }
 .bl-logo-wrap {
     display: flex;
     align-items: center;
