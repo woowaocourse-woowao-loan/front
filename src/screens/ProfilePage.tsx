@@ -149,7 +149,7 @@ const ProfilePage: React.FC = () => {
                                         ...styles.borrowCard,
                                         border: isOverdue ? '2px solid #dc3545' : '1px solid #eee',
                                     }}
-                                    onClick={() => navigate(`/books/${b.bookId}`)}
+                                    onClick={() => navigate(`/books/${b.bookItemId}`)}
                                 >
                                     <div style={styles.cardMain}>
                                         <div style={styles.bookTitle}>{b.title}</div>
