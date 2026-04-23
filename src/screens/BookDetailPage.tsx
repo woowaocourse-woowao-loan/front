@@ -63,8 +63,8 @@ const [book, setBook] = useState<BookInfo | null>(null);
             try {
                 const token = localStorage.getItem('token');
 
-                // 1. 책 기본 정보 가져오기 (GET /books/{id})
-                const bookRes = await fetch(`${BASE_URL}/books/${id}`);
+                // 1. 개별 책 정보 가져오기 (GET /bookItems/{id})
+                const bookRes = await fetch(`${BASE_URL}/bookItems/${id}`);
                 if (bookRes.ok) setBook(await bookRes.json());
 
                 // 2. 대출 상태 확인하기 (GET /borrows/{bookId})
@@ -172,7 +172,7 @@ const [book, setBook] = useState<BookInfo | null>(null);
                         <button disabled style={styles.disabledBtn}>대출 불가</button>
                     )}
 
-                    <button onClick={() => navigate('/', { state: { page: (location.state as { fromPage?: number } | null)?.fromPage ?? 1 } })} style={styles.secondaryBtn}>목록으로</button>
+                    <button onClick={() => navigate(-1)} style={styles.secondaryBtn}>목록으로</button>
                 </div>
             </div>
         </div>

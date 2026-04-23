@@ -8,7 +8,8 @@ interface Book {
     title: string;
     subtitle: string;
     author: string;
-    isBorrowed?: boolean;
+    stock: number;
+    numOfBooks: number;
 }
 
 interface CachedPage {
@@ -107,27 +108,12 @@ const BookListPage: React.FC = () => {
 
                 const data: { content: Book[]; totalPages: number; totalElements: number } = await bookRes.json();
 
-                // 2. 개별 도서 대출 상태 확인 (모든 fetch에 signal 전달)
-                const statuses = await Promise.all(
-                    data.content.map(book =>
-                        fetch(`${BASE_URL}/borrows/${book.id}`, { signal })
-                            .then(res => ({ id: book.id, isBorrowed: res.status === 200 }))
-                            .catch(err => {
-                                if (err.name === 'AbortError') throw err;
-                                return { id: book.id, isBorrowed: false };
-                            })
-                    )
-                );
-
-                const statusMap = Object.fromEntries(statuses.map(s => [s.id, s.isBorrowed]));
-                const mergedBooks = data.content.map(book => ({ ...book, isBorrowed: statusMap[book.id] }));
-
-                // 데이터 업데이트 + 캐시 저장
-                setBooks(mergedBooks);
+                // stock/numOfBooks 포함된 응답 그대로 사용 (별도 대출 상태 API 불필요)
+                setBooks(data.content);
                 setTotalPages(data.totalPages);
                 setTotalElements(data.totalElements);
                 writeCache(page, {
-                    books: mergedBooks,
+                    books: data.content,
                     totalPages: data.totalPages,
                     totalElements: data.totalElements,
                 });
@@ -207,15 +193,15 @@ const BookListPage: React.FC = () => {
                             </thead>
                             <tbody>
                                 {books.map((book) => (
-                                    <tr key={book.id} onClick={() => navigate(`/books/${book.id}`, { state: { fromPage: page } })}>
+                                    <tr key={book.id} onClick={() => navigate(`/books/${book.id}/items`, { state: { fromPage: page } })}>
                                         <td>
                                             <span className="bl-book-title">{book.title}</span>
                                             {book.subtitle && <span className="bl-book-sub">— {book.subtitle}</span>}
                                         </td>
                                         <td className="bl-author">{book.author.split(',')[0].trim()}</td>
                                         <td style={{ textAlign: 'center' }}>
-                                            <span className={book.isBorrowed ? 'bl-badge-no' : 'bl-badge-ok'}>
-                                                {book.isBorrowed ? '대출 중' : '대출 가능'}
+                                            <span className={book.stock === 0 ? 'bl-badge-no' : 'bl-badge-ok'}>
+                                                {book.stock} / {book.numOfBooks}
                                             </span>
                                         </td>
                                     </tr>
@@ -226,14 +212,14 @@ const BookListPage: React.FC = () => {
 
                     <div className="bl-list">
                         {books.map((book) => (
-                            <div key={book.id} className="bl-list-item" onClick={() => navigate(`/books/${book.id}`, { state: { fromPage: page } })}>
+                            <div key={book.id} className="bl-list-item" onClick={() => navigate(`/books/${book.id}/items`, { state: { fromPage: page } })}>
                                 <div className="bl-list-info">
                                     <div className="bl-list-title">{book.title}</div>
                                     <div className="bl-list-author">{book.author.split(',')[0].trim()}</div>
                                 </div>
                                 <div className="bl-list-badge">
-                                    <span className={book.isBorrowed ? 'bl-badge-no' : 'bl-badge-ok'}>
-                                        {book.isBorrowed ? '대출 중' : '대출 가능'}
+                                    <span className={book.stock === 0 ? 'bl-badge-no' : 'bl-badge-ok'}>
+                                        {book.stock} / {book.numOfBooks}
                                     </span>
                                 </div>
                             </div>
