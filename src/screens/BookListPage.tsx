@@ -23,6 +23,7 @@ interface CachedPage {
 const PAGE_SIZE = 20;
 const CACHE_TTL_MS = 300_000;
 const CACHE_PREFIX = 'bookList:page:';
+const BORROWS_CACHE_KEY = 'bookList:myBorrows';
 
 const readCache = (page: number): CachedPage | null => {
     try {
@@ -47,6 +48,24 @@ const writeCache = (page: number, data: Omit<CachedPage, 'timestamp'>) => {
     }
 };
 
+const readBorrowsCache = (): { dueAt: string }[] | null => {
+    try {
+        const raw = sessionStorage.getItem(BORROWS_CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw) as { data: { dueAt: string }[]; timestamp: number };
+        if (Date.now() - parsed.timestamp > CACHE_TTL_MS) return null;
+        return parsed.data;
+    } catch {
+        return null;
+    }
+};
+
+const writeBorrowsCache = (data: { dueAt: string }[]) => {
+    try {
+        sessionStorage.setItem(BORROWS_CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
+    } catch {}
+};
+
 export const clearBookListCache = () => {
     const keys: string[] = [];
     for (let i = 0; i < sessionStorage.length; i++) {
@@ -54,6 +73,7 @@ export const clearBookListCache = () => {
         if (key?.startsWith(CACHE_PREFIX)) keys.push(key);
     }
     keys.forEach(k => sessionStorage.removeItem(k));
+    sessionStorage.removeItem(BORROWS_CACHE_KEY);
 };
 
 const BookListPage: React.FC = () => {
@@ -73,9 +93,17 @@ const BookListPage: React.FC = () => {
         if (!token) return;
         setIsLoggedIn(true);
 
+        const cached = readBorrowsCache();
+        if (cached) {
+            const now = Date.now();
+            setOverdueCount(cached.filter(b => new Date(b.dueAt).getTime() < now).length);
+            return;
+        }
+
         apiFetch('/borrows/me', { auth: true })
             .then(res => res.ok ? res.json() : [])
             .then((borrows: { dueAt: string }[]) => {
+                writeBorrowsCache(borrows);
                 const now = Date.now();
                 setOverdueCount(borrows.filter(b => new Date(b.dueAt).getTime() < now).length);
             })
