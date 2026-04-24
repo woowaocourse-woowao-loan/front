@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiFetch } from '../api/client';
 
 type MyBorrow = {
     borrowId: number;
@@ -25,7 +26,6 @@ function formatDate(iso: string): string {
 
 const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
-    const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
 
     const [currentName, setCurrentName] = useState<string>('');
     const [newName, setNewName] = useState<string>('');
@@ -33,19 +33,9 @@ const ProfilePage: React.FC = () => {
     const [borrows, setBorrows] = useState<MyBorrow[]>([]);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert("로그인이 필요합니다.");
-            navigate('/login');
-            return;
-        }
-
-        // 1. 내 닉네임
         const fetchMyInfo = async () => {
             try {
-                const res = await fetch(`${BASE_URL}/oauth/me`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const res = await apiFetch('/oauth/me', { auth: true });
                 if (res.ok) {
                     const name = await res.text();
                     setCurrentName(name);
@@ -54,28 +44,24 @@ const ProfilePage: React.FC = () => {
             } catch (e) { console.error("내 정보 조회 실패:", e); }
         };
 
-        // 2. 내가 빌린 책
         const fetchMyBorrows = async () => {
             try {
-                const res = await fetch(`${BASE_URL}/borrows/me`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const res = await apiFetch('/borrows/me', { auth: true });
                 if (res.ok) setBorrows(await res.json());
             } catch (e) { console.error("빌린 책 조회 실패:", e); }
         };
 
         Promise.all([fetchMyInfo(), fetchMyBorrows()]).finally(() => setIsLoading(false));
-    }, [navigate, BASE_URL]);
+    }, []);
 
     const handleUpdateUsername = async () => {
         if (!newName.trim()) { alert("변경할 닉네임을 입력해 주세요."); return; }
         if (newName === currentName) { alert("현재 닉네임과 동일합니다."); return; }
 
-        const token = localStorage.getItem('token');
         try {
-            const res = await fetch(`${BASE_URL}/oauth/username?username=${encodeURIComponent(newName)}`, {
+            const res = await apiFetch(`/oauth/username?username=${encodeURIComponent(newName)}`, {
                 method: 'PATCH',
-                headers: { 'Authorization': `Bearer ${token}` }
+                auth: true,
             });
             if (res.ok) {
                 alert("닉네임이 성공적으로 변경되었습니다! 🎉");
@@ -107,7 +93,6 @@ const ProfilePage: React.FC = () => {
             <div style={styles.card}>
                 <h2 style={styles.title}>👤 마이페이지</h2>
 
-                {/* === 닉네임 설정 === */}
                 <div style={styles.inputGroup}>
                     <label style={styles.label}>우테코 닉네임</label>
                     <input
@@ -125,10 +110,8 @@ const ProfilePage: React.FC = () => {
 
                 <hr style={styles.divider} />
 
-                {/* === 내가 빌린 책 === */}
                 <h3 style={styles.sectionTitle}>📚 내가 빌린 책 ({borrows.length}권)</h3>
 
-                {/* 🔔 연체 알림 */}
                 {overdueCount > 0 && (
                     <div style={styles.alertBanner}>
                         ⚠️ <b>{overdueCount}권</b>이 연체되었습니다. 가능한 빨리 반납해 주세요!
@@ -172,7 +155,6 @@ const ProfilePage: React.FC = () => {
 
                 <hr style={styles.divider} />
 
-                {/* === 유틸리티 === */}
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <button onClick={handleLogout} style={styles.logoutBtn}>로그아웃</button>
                     <button style={styles.deleteBtn} onClick={() => alert("회원탈퇴 기능은 준비중입니다.")}>회원탈퇴</button>

@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { clearBookListCache } from './BookListPage';
+import { apiFetch } from '../api/client';
 
-// 💡 백엔드 DTO와 일치하는 인터페이스
 interface BookInfo {
     title: string;
     subtitle: string;
@@ -15,7 +15,7 @@ interface BorrowInfo {
     title: string;
     subtitle: string;
     author: string;
-    borrowedAt: string; // ISO 8601 (e.g. "2026-04-07T10:30:00")
+    borrowedAt: string;
 }
 
 function getMemberIdFromToken(token: string): number | null {
@@ -50,32 +50,29 @@ const BookDetailPage: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-const [book, setBook] = useState<BookInfo | null>(null);
+    const [book, setBook] = useState<BookInfo | null>(null);
     const [borrowInfo, setBorrowInfo] = useState<BorrowInfo | null>(null);
     const [myMemberId, setMyMemberId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
-    const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
-
-    // 💡 초기 데이터 로딩 (책 정보 + 대출 상태 + 내 정보)
     useEffect(() => {
         const fetchAllData = async () => {
             try {
                 const token = localStorage.getItem('token');
 
-                // 1. 개별 책 정보 가져오기 (GET /bookItems/{id})
-                const bookRes = await fetch(`${BASE_URL}/bookItems/${id}`);
+                const [bookRes, borrowRes] = await Promise.all([
+                    apiFetch(`/bookItems/${id}`),
+                    apiFetch(`/borrows/${id}`),
+                ]);
+
                 if (bookRes.ok) setBook(await bookRes.json());
 
-                // 2. 대출 상태 확인하기 (GET /borrows/{bookId})
-                const borrowRes = await fetch(`${BASE_URL}/borrows/${id}`);
                 if (borrowRes.status === 200) {
-                    setBorrowInfo(await borrowRes.json()); // 대출 중인 정보 저장
+                    setBorrowInfo(await borrowRes.json());
                 } else if (borrowRes.status === 204) {
-                    setBorrowInfo(null); // 204 No Content면 대출 가능 상태
+                    setBorrowInfo(null);
                 }
 
-                // 3. JWT에서 memberId 추출
                 if (token) {
                     setMyMemberId(getMemberIdFromToken(token));
                 }
@@ -87,9 +84,8 @@ const [book, setBook] = useState<BookInfo | null>(null);
         };
 
         fetchAllData();
-    }, [id, navigate, location.pathname]);
+    }, [id]);
 
-    // 💡 대출하기 (POST /borrows/{bookId})
     const handleBorrow = async () => {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -99,46 +95,43 @@ const [book, setBook] = useState<BookInfo | null>(null);
             return;
         }
 
-        const res = await fetch(`${BASE_URL}/borrows/${id}`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        try {
+            const res = await apiFetch(`/borrows/${id}`, { method: 'POST', auth: true });
 
-        if (res.status === 201) {
-            // 대출 성공 → 최신 BorrowInfo 재조회 (POST 응답 바디가 없음)
-            const updated = await fetch(`${BASE_URL}/borrows/${id}`);
-            if (updated.status === 200) {
-                setBorrowInfo(await updated.json());
+            if (res.status === 201) {
+                const updated = await apiFetch(`/borrows/${id}`);
+                if (updated.status === 200) {
+                    setBorrowInfo(await updated.json());
+                }
+                clearBookListCache();
+                alert("성공적으로 대출되었습니다!");
+            } else {
+                alert("대출에 실패했습니다.");
             }
-            clearBookListCache();
-            alert("성공적으로 대출되었습니다!");
-        } else {
-            alert("대출에 실패했습니다.");
+        } catch (error) {
+            console.error("대출 처리 실패:", error);
         }
     };
 
-    // 💡 반납하기 (PATCH /borrows/{bookId})
     const handleReturn = async () => {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${BASE_URL}/borrows/${id}`, {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        try {
+            const res = await apiFetch(`/borrows/${id}`, { method: 'PATCH', auth: true });
 
-        if (res.ok) {
-            // 반납 성공 → 추가 API 호출 없이 즉시 "대출 가능" 상태로 전환
-            setBorrowInfo(null);
-            clearBookListCache();
-            alert("성공적으로 반납되었습니다!");
-        } else {
-            alert("반납 처리에 실패했습니다.");
+            if (res.ok) {
+                setBorrowInfo(null);
+                clearBookListCache();
+                alert("성공적으로 반납되었습니다!");
+            } else {
+                alert("반납 처리에 실패했습니다.");
+            }
+        } catch (error) {
+            console.error("반납 처리 실패:", error);
         }
     };
 
     if (isLoading) return <div style={{ textAlign: 'center', marginTop: '50px' }}>로딩 중...</div>;
     if (!book) return <div style={{ textAlign: 'center', marginTop: '50px' }}>책을 찾을 수 없습니다.</div>;
 
-    // 💡 버튼 상태 계산 로직
     const isAvailable = borrowInfo === null;
     const isBorrowedByMe = borrowInfo && borrowInfo.memberId === myMemberId;
     const dday = borrowInfo ? getDDayInfo(borrowInfo.borrowedAt) : null;
@@ -160,7 +153,6 @@ const [book, setBook] = useState<BookInfo | null>(null);
                 </div>
 
                 <div style={styles.buttonGroup}>
-                    {/* 대출/반납 버튼 렌더링 */}
                     {isAvailable ? (
                         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '6px' }}>
                             <button onClick={handleBorrow} style={styles.primaryBtn}>대출하기</button>
@@ -179,7 +171,6 @@ const [book, setBook] = useState<BookInfo | null>(null);
     );
 };
 
-// CSS 스타일 객체
 const styles = {
     container: { maxWidth: '600px', margin: '24px auto', fontFamily: "'Pretendard', sans-serif", padding: '0 16px', boxSizing: 'border-box' as const, width: '100%' },
     card: { background: 'white', padding: '24px 20px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' },

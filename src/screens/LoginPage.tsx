@@ -1,8 +1,7 @@
 import React from 'react';
+import { BASE_URL } from '../api/client';
 
 const LoginPage: React.FC = () => {
-    const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
-
     const handleLogin = (provider: string) => {
         window.location.href = `${BASE_URL}/oauth/${provider}`;
     };

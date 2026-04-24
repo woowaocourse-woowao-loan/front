@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../App.css';
 import logo from "../assets/logo.svg";
+import { apiFetch } from '../api/client';
 
 interface Book {
     id: number;
@@ -20,7 +21,7 @@ interface CachedPage {
 }
 
 const PAGE_SIZE = 20;
-const CACHE_TTL_MS = 60_000;
+const CACHE_TTL_MS = 15_000;
 const CACHE_PREFIX = 'bookList:page:';
 
 const readCache = (page: number): CachedPage | null => {
@@ -58,7 +59,6 @@ export const clearBookListCache = () => {
 const BookListPage: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const BASE_URL = useMemo(() => import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080', []);
 
     const [books, setBooks] = useState<Book[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -73,17 +73,16 @@ const BookListPage: React.FC = () => {
         if (!token) return;
         setIsLoggedIn(true);
 
-        fetch(`${BASE_URL}/borrows/me`, { headers: { 'Authorization': `Bearer ${token}` } })
+        apiFetch('/borrows/me', { auth: true })
             .then(res => res.ok ? res.json() : [])
             .then((borrows: { dueAt: string }[]) => {
                 const now = Date.now();
                 setOverdueCount(borrows.filter(b => new Date(b.dueAt).getTime() < now).length);
             })
             .catch(() => {});
-    }, [BASE_URL]);
+    }, []);
 
     useEffect(() => {
-        // 캐시 히트 시 API 호출 없이 즉시 렌더
         const cached = readCache(page);
         if (cached) {
             setBooks(cached.books);
@@ -94,21 +93,18 @@ const BookListPage: React.FC = () => {
         }
 
         const controller = new AbortController();
-        const signal = controller.signal;
 
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                // 1. 책 목록 가져오기 (signal 전달)
-                const bookRes = await fetch(
-                    `${BASE_URL}/books?page=${page - 1}&size=${PAGE_SIZE}&sort=title,asc&sort=author,asc`,
-                    { signal }
+                const bookRes = await apiFetch(
+                    `/books?page=${page - 1}&size=${PAGE_SIZE}&sort=title,asc&sort=author,asc`,
+                    { signal: controller.signal }
                 );
                 if (!bookRes.ok) throw new Error('Fetch failed');
 
                 const data: { content: Book[]; totalPages: number; totalElements: number } = await bookRes.json();
 
-                // stock/numOfBooks 포함된 응답 그대로 사용 (별도 대출 상태 API 불필요)
                 setBooks(data.content);
                 setTotalPages(data.totalPages);
                 setTotalElements(data.totalElements);
@@ -118,16 +114,11 @@ const BookListPage: React.FC = () => {
                     totalElements: data.totalElements,
                 });
             } catch (err: unknown) {
-                if (err instanceof Error) {
-                    if (err.name === 'AbortError') {
-                        console.log('이전 요청 취소됨');
-                    } else {
-                        console.error('에러 발생:', err.message);
-                    }
+                if (err instanceof Error && err.name !== 'AbortError') {
+                    console.error('에러 발생:', err.message);
                 }
             } finally {
-                // signal이 취소되지 않았을 때만 로딩 상태 해제
-                if (!signal.aborted) {
+                if (!controller.signal.aborted) {
                     setIsLoading(false);
                 }
             }
@@ -135,9 +126,8 @@ const BookListPage: React.FC = () => {
 
         fetchData();
 
-        // 클린업 함수: 페이지를 이탈하거나 다음 페이지 클릭 시 진행 중인 모든 fetch 중단
         return () => controller.abort();
-    }, [page, BASE_URL]);
+    }, [page]);
 
     const handleLogout = () => {
         if (window.confirm('로그아웃 하시겠습니까?')) {
@@ -146,7 +136,6 @@ const BookListPage: React.FC = () => {
         }
     };
 
-    // 페이지네이션 배열 생성 최적화 (totalPages가 바뀔 때만 재계산)
     const pageNumbers = useMemo(() =>
             Array.from({ length: totalPages }, (_, i) => i + 1),
         [totalPages]);
@@ -181,7 +170,6 @@ const BookListPage: React.FC = () => {
                 <div className="bl-empty">등록된 도서가 없습니다.</div>
             ) : (
                 <>
-                    {/* 테이블 — 태블릿·데스크톱 */}
                     <div className="bl-table-wrap">
                         <table className="bl-table">
                             <thead>

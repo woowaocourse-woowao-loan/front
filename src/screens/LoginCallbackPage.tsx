@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { BASE_URL } from '../api/client';
 
 const LoginCallbackPage: React.FC = () => {
     const { provider } = useParams<{ provider: string }>(); // URL에서 kakao 또는 github 추출
@@ -16,7 +17,7 @@ const LoginCallbackPage: React.FC = () => {
 
             // 백엔드의 OauthController.login() API 호출
             // enum 타입 매칭을 위해 대문자로 변환 (kakao -> KAKAO)
-            fetch(`${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'}/oauth/login/${provider.toUpperCase()}?code=${code}`)
+            fetch(`${BASE_URL}/oauth/login/${provider.toUpperCase()}?code=${code}`)
                 .then(res => {
                     if (!res.ok) throw new Error("로그인 처리에 실패했습니다.");
                     return res.json();

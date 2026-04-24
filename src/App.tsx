@@ -6,6 +6,7 @@ import LoginPage from "./screens/LoginPage.tsx";
 import LoginCallbackPage from "./screens/LoginCallbackPage.tsx";
 import ProfilePage from "./screens/ProfilePage.tsx";
 import BookListPage from "./screens/BookListPage.tsx";
+import ProtectedRoute from "./components/ProtectedRoute.tsx";
 
 function App() {
     return (
@@ -15,7 +16,7 @@ function App() {
                 <Route path="/books/:bookId/items" element={<BookItemListPage/>} />
                 <Route path="/books/:id" element={<BookDetailPage/>} />
                 <Route path="/oauth/login/:provider" element={<LoginCallbackPage/>} />
-                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
                 <Route path="/" element={<BookListPage/>} />
             </Routes>
         </BrowserRouter>
