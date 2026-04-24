@@ -21,7 +21,7 @@ interface CachedPage {
 }
 
 const PAGE_SIZE = 20;
-const CACHE_TTL_MS = 15_000;
+const CACHE_TTL_MS = 300_000;
 const CACHE_PREFIX = 'bookList:page:';
 
 const readCache = (page: number): CachedPage | null => {
