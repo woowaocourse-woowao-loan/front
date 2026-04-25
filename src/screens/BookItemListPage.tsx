@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import '../App.css';
 import logo from '../assets/logo.svg';
+import { apiFetch } from '../api/client';
 
 interface BookInfo {
     id: number;
@@ -26,7 +27,6 @@ const BookItemListPage: React.FC = () => {
     const { bookId } = useParams<{ bookId: string }>();
     const navigate = useNavigate();
     const location = useLocation();
-    const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
 
     const [bookDetail, setBookDetail] = useState<BookDetailInfo | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -37,12 +37,16 @@ const BookItemListPage: React.FC = () => {
     useEffect(() => {
         if (localStorage.getItem('token')) setIsLoggedIn(true);
 
-        fetch(`${BASE_URL}/books/${bookId}`)
+        const controller = new AbortController();
+
+        apiFetch(`/books/${bookId}`, { signal: controller.signal })
             .then(res => res.ok ? res.json() : null)
             .then(data => setBookDetail(data))
             .catch(() => {})
             .finally(() => setIsLoading(false));
-    }, [bookId, BASE_URL]);
+
+        return () => controller.abort();
+    }, [bookId]);
 
     const handleLogout = () => {
         if (window.confirm('로그아웃 하시겠습니까?')) {
@@ -76,7 +80,6 @@ const BookItemListPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* 책 종류 정보 카드 */}
             <div className="bil-book-info">
                 <div className="bil-book-title">
                     {bookInfo.title}
@@ -92,7 +95,6 @@ const BookItemListPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* 테이블 — 태블릿·데스크톱 */}
             <div className="bl-table-wrap">
                 <table className="bl-table">
                     <thead>
@@ -127,7 +129,6 @@ const BookItemListPage: React.FC = () => {
                 </table>
             </div>
 
-            {/* 카드 목록 — 모바일 */}
             <div className="bl-list">
                 <div className="bl-list-header">
                     <div className="bl-list-header-info">도서 번호 / 도서명</div>
